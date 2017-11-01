@@ -28,5 +28,19 @@
   <button id="hate_it_button">Hate It</button>
 </menu>
 
+<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+<script>
+  // Initialize Firebase.
+  var config = {
+    apiKey: "YOUR API KEY HERE",
+    authDomain: "YOUR AUTH DOMAIN HERE",
+    databaseURL: "YOUR DATABASE URL HERE",
+    projectId: "YOUR PROJECT ID HERE",
+    storageBucket: "",
+    messagingSenderId: "YOUR MESSAGING SENDING ID HERE"
+  };
+  firebase.initializeApp(config);
+</script>
+
 <script src="third_party/node-flickrapi/flickrapi.dev.js"></script>
 <script src="js/main.js"></script>

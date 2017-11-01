@@ -35,12 +35,31 @@
       }
 
       const photo = this.photos.shift();
-      this.showPhoto(photo);
+
+      // Check whether we have already seen this photo before.
+      // TODO(smcgruer): This is quite hacky as it tries to handle the case
+      // where no-one is logged in. We should just only ever call
+      // |showNextPhoto| when there is a Firebase user.
+      if (this.firebase_user) {
+        const read_value_cb = function(snapshot) {
+          if (snapshot.val() !== null) {
+            console.log('Already seen photo, skipping: ' + snapshot);
+            this.showNextPhoto();
+          } else {
+            this.showPhoto(photo);
+          }
+        }.bind(this);
+        const ref = firebase.database().ref(this.firebase_user.uid + '/photos');
+        ref.child(photo.id).once('value', read_value_cb);
+      } else {
+        this.showPhoto(photo);
+      }
     },
 
     showPhoto: function(photo) {
       const url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg";
       document.getElementById("pictureBox").src = url;
+      this.current_photo = photo;
     },
 
     getMorePhotos: function(next_photo_cb) {
@@ -70,8 +89,25 @@
     },
 
     markPhotoAs: function(description) {
-      // No-op for now.
-      window.alert("You " + description + " this photo!");
+      if (!this.firebase_user) {
+        window.alert('Error: Unable to save result; firebase user not set.');
+        return;
+      }
+      if (!this.current_photo) {
+        window.alert('Error: no photo currently?');
+        this.showNextPhoto();
+        return;
+      }
+
+      const current_photo = this.current_photo;
+      const path = this.firebase_user.uid + '/photos/' + current_photo.id;
+      firebase.database().ref(path).set({
+        id: current_photo.id,
+        farm: current_photo.farm,
+        server: current_photo.server,
+        secret: current_photo.secret,
+        decision: description
+      });
 
       this.showNextPhoto();
     },
@@ -98,4 +134,18 @@ window.addEventListener('load', function() {
   });
 
   window.ThingPicker.showNextPhoto();
+});
+
+firebase.auth().onAuthStateChanged (function(user) {
+  if (user) {
+    window.ThingPicker.firebase_user = user;
+  } else {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider).then(function(result) {
+      window.ThingPicker.firebase_user = user;
+    }, function(error) {
+      // TODO(smcgruer): Handle errors: https://firebase.google.com/docs/reference/js/firebase.auth.Auth#signInWithPopup
+      console.log(error);
+    });
+  }
 });
