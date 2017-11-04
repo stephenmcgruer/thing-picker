@@ -64,3 +64,9 @@
 a {
   margin: 0.5em;
 }
+
+#x-over-y-text {
+  width: 100%;
+  margin-top: 0.5em;
+  text-align: center;
+}

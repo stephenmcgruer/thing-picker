@@ -25,10 +25,17 @@
 
     current_page: 1,
 
+    numerator: 0,
+
+    denominator: 0,
+
+    allow_interaction: true,
+
     flickr: new Flickr({ api_key: FLICKR_API_KEY }),
 
     showNextPhoto: function() {
       if (this.photos.length == 0) {
+        this.allow_interaction = false;
         document.getElementById("pictureBox").classList.add("hidden");
         document.getElementById("no-image-spinner").classList.remove("hidden");
 
@@ -39,6 +46,7 @@
     },
 
     showPhoto: function(photo) {
+      this.allow_interaction = true;
       document.getElementById("pictureBox").classList.remove("hidden");
       document.getElementById("no-image-spinner").classList.add("hidden");
 
@@ -46,6 +54,9 @@
       // biggest.
       const url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg";
       document.getElementById("pictureBox").src = url;
+
+      this.numerator += 1;
+      this.refreshXOverYText();
     },
 
     getMorePhotos: function() {
@@ -81,6 +92,9 @@
       });
 
       Promise.all(firebasePromises).then(values => {
+        this.denominator += this.photos.length;
+        this.refreshXOverYText();
+
         if (this.photos.length == 0) {
           console.log('Already seen all, calling back into getMorePhotos');
           this.getMorePhotos();
@@ -91,6 +105,9 @@
     },
 
     markPhotoAs: function(description) {
+      if (!this.allow_interaction) {
+        return;
+      }
       if (!this.firebase_user) {
         window.alert('Error: Unable to save result; firebase user not set.');
         return;
@@ -114,6 +131,11 @@
       this.photos.shift();
       this.showNextPhoto();
     },
+
+    refreshXOverYText: function() {
+      const text = this.numerator + "/" + this.denominator;
+      document.getElementById("x-over-y-text").innerText = text;
+    }
 
   };
 
@@ -149,6 +171,8 @@ firebase.auth().onAuthStateChanged (function(user) {
     }, function(error) {
       // TODO(smcgruer): Handle errors: https://firebase.google.com/docs/reference/js/firebase.auth.Auth#signInWithPopup
       console.log(error);
+      window.alert(
+        "Unable to sign you in; please allow popups if disabled and refresh.");
     });
   }
 });
