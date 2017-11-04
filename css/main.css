@@ -22,7 +22,9 @@
 
 .img-container {
   height: 500px;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
+  /* So that it contains the spinner. */
+  position: relative;
 }
 
 .img-container > img {
@@ -32,11 +34,33 @@
   object-fit: contain;
 }
 
+.hidden {
+  display: none;
+}
+
+#no-image-spinner {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.05);
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+.outer-spinner {
+  position: absolute;
+  top :0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
 .buttons {
   width: 100%;
   text-align: center;
 }
 
 a {
-  margin: 0 0.5em;
+  margin: 0.5em;
 }

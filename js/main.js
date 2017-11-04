@@ -28,43 +28,29 @@
     flickr: new Flickr({ api_key: FLICKR_API_KEY }),
 
     showNextPhoto: function() {
-      // TODO(smcgruer): Grey-out the current photo and show a loading spinner.
       if (this.photos.length == 0) {
-        this.getMorePhotos(this.showNextPhoto.bind(this));
+        document.getElementById("pictureBox").classList.add("hidden");
+        document.getElementById("no-image-spinner").classList.remove("hidden");
+
+        this.getMorePhotos();
         return;
       }
-
-      const photo = this.photos.shift();
-
-      // Check whether we have already seen this photo before.
-      // TODO(smcgruer): This is quite hacky as it tries to handle the case
-      // where no-one is logged in. We should just only ever call
-      // |showNextPhoto| when there is a Firebase user.
-      if (this.firebase_user) {
-        const read_value_cb = function(snapshot) {
-          if (snapshot.val() !== null) {
-            console.log('Already seen photo, skipping: ' + snapshot);
-            this.showNextPhoto();
-          } else {
-            this.showPhoto(photo);
-          }
-        }.bind(this);
-        const ref = firebase.database().ref(this.firebase_user.uid + '/photos');
-        ref.child(photo.id).once('value', read_value_cb);
-      } else {
-        this.showPhoto(photo);
-      }
+      this.showPhoto(this.photos[0]);
     },
 
     showPhoto: function(photo) {
+      document.getElementById("pictureBox").classList.remove("hidden");
+      document.getElementById("no-image-spinner").classList.add("hidden");
+
+      // TODO(smcgruer): Call getSizes API to determine allowable sizes, use the
+      // biggest.
       const url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg";
       document.getElementById("pictureBox").src = url;
-      this.current_photo = photo;
     },
 
-    getMorePhotos: function(next_photo_cb) {
+    getMorePhotos: function() {
       const result_cb = function(err, result) {
-        this.handleFlickrPhotosResponse(next_photo_cb, err, result);
+        this.handlePhotosSearchResponse(err, result);
       }.bind(this);
 
       this.flickr.photos.search({
@@ -76,16 +62,32 @@
       }, result_cb);
     },
 
-    handleFlickrPhotosResponse: function (next_photo_cb, err, result) {
+    handlePhotosSearchResponse: function (err, result) {
       if (err) {
         console.log(err);
         return;
       }
-      for (const photo of result.photos.photo) {
-        this.photos.push(photo);
-      }
+
+      const ref = firebase.database().ref(this.firebase_user.uid + '/photos');
+      const firebasePromises = Promise.map(result.photos.photo, photo => {
+        return ref.child(photo.id).once('value').then(s => {
+          if (s.val() === null) {
+            this.photos.push(photo);
+            if (this.photos.length == 1) {
+              this.showPhoto(photo);
+            }
+          }
+        }).reflect();
+      });
+
+      Promise.all(firebasePromises).then(values => {
+        if (this.photos.length == 0) {
+          console.log('Already seen all, calling back into getMorePhotos');
+          this.getMorePhotos();
+        }
+      });
+
       this.current_page += 1;
-      next_photo_cb();
     },
 
     markPhotoAs: function(description) {
@@ -93,13 +95,13 @@
         window.alert('Error: Unable to save result; firebase user not set.');
         return;
       }
-      if (!this.current_photo) {
-        window.alert('Error: no photo currently?');
+      if (this.photos.length == 0) {
+        window.alert('Error: no photo shown?');
         this.showNextPhoto();
         return;
       }
 
-      const current_photo = this.current_photo;
+      const current_photo = this.photos[0];
       const path = this.firebase_user.uid + '/photos/' + current_photo.id;
       firebase.database().ref(path).set({
         id: current_photo.id,
@@ -109,6 +111,7 @@
         decision: description
       });
 
+      this.photos.shift();
       this.showNextPhoto();
     },
 

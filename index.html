@@ -23,6 +23,21 @@
 <div class="content">
   <div class="img-container">
     <img id="pictureBox"></img>
+
+    <!-- Shown when there is no image currently. -->
+    <div id="no-image-spinner">
+      <div class="outer-spinner preloader-wrapper big active">
+        <div class="spinner-layer spinner-blue-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="buttons">
     <a class="btn-large waves-effect waves-light orange" id="love_it_button">Love It</a>
@@ -46,6 +61,7 @@
 </script>
 
 <script src="third_party/node-flickrapi/flickrapi.dev.js"></script>
+<script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.min.js"></script>
 <script src="js/main.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
