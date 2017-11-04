@@ -17,16 +17,19 @@
 <meta charset="utf-8">
 <title>ThingPicker</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
 <link rel="stylesheet" type="text/css" href="css/main.css">
 
-<main class="content">
-  <img id="pictureBox"></img>
-</main>
-<menu class="buttons">
-  <button id="love_it_button">Love It</button>
-  <button id="like_it_button">Like It</button>
-  <button id="hate_it_button">Hate It</button>
-</menu>
+<div class="content">
+  <div class="img-container">
+    <img id="pictureBox"></img>
+  </div>
+  <div class="buttons">
+    <a class="btn-large waves-effect waves-light orange" id="love_it_button">Love It</a>
+    <a class="btn-large waves-effect waves-light orange" id="like_it_button">Like It</a>
+    <a class="btn-large waves-effect waves-light orange" id="hate_it_button">Hate It</a>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
 <script>
@@ -44,3 +47,5 @@
 
 <script src="third_party/node-flickrapi/flickrapi.dev.js"></script>
 <script src="js/main.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>

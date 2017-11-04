@@ -15,10 +15,28 @@
  */
 
 .content {
+  margin: 0 auto;
+  width: 800px;
+  max-width: 100%;
+}
+
+.img-container {
+  height: 500px;
+  margin-bottom: 2em;
+}
+
+.img-container > img {
+  margin: auto;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
 }
 
 .buttons {
+  width: 100%;
+  text-align: center;
 }
 
-button {
+a {
+  margin: 0 0.5em;
 }
