@@ -36,8 +36,12 @@
       const user = event.target.innerText;
       const ref = firebase.database().ref(user + '/photos');
       ref.once('value').then(s => {
-        const photo_list = document.getElementById("photo_list");
-        photo_list.innerHTML = "";
+        const loved_photo_list = document.getElementById("loved_photo_list");
+        const liked_photo_list = document.getElementById("liked_photo_list");
+        const hated_photo_list = document.getElementById("hated_photo_list");
+        loved_photo_list.innerHTML = "";
+        liked_photo_list.innerHTML = "";
+        hated_photo_list.innerHTML = "";
         s.forEach(function(photo_snapshot) {
           const photo = photo_snapshot.val();
           const entry = document.createElement("li");
@@ -46,7 +50,13 @@
           link.href = url;
           link.innerText = url;
           entry.appendChild(link);
-          photo_list.appendChild(entry);
+          if (photo.decision === "loved") {
+            loved_photo_list.appendChild(entry);
+          } else if (photo.decision === "liked") {
+            liked_photo_list.appendChild(entry);
+          } else if (photo.decision === "hated") {
+            hated_photo_list.appendChild(entry);
+          }
         });
       });
     }
