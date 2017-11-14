@@ -17,7 +17,7 @@
 
   // HACK(smcgruer): This is SUPER INSECURE. One should always proxy requests
   // via a known server instead of exposing a key to js like this.
-  const FLICKR_API_KEY = "YOUR KEY HERE";
+  const FLICKR_API_KEY = "4c47eaae23af29597eeeb126127cbb88";
 
   const FINISHED_TYPING_INTERVAL = 500;
 
