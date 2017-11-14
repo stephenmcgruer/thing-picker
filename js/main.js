@@ -19,6 +19,8 @@
   // via a known server instead of exposing a key to js like this.
   const FLICKR_API_KEY = "YOUR KEY HERE";
 
+  const FINISHED_TYPING_INTERVAL = 500;
+
   const ThingPicker = {
 
     photos: [],
@@ -64,8 +66,9 @@
         this.handlePhotosSearchResponse(err, result);
       }.bind(this);
 
+      const search_input = document.getElementById("search_input");
       this.flickr.photos.search({
-        text: 'YOUR TOPIC HERE',
+        text: search_input.value || search_input.placeholder,
         sort: 'relevance',
         media: 'photos',
         page: this.current_page,
@@ -135,8 +138,26 @@
     refreshXOverYText: function() {
       const text = this.numerator + "/" + this.denominator;
       document.getElementById("x-over-y-text").innerText = text;
-    }
+    },
 
+    typingTimer: null,
+
+    searchInputKeyUp: function() {
+      clearTimeout(this.typingTimer);
+      this.typingTimer = setTimeout(
+        this.searchInputFinishedTyping.bind(this), FINISHED_TYPING_INTERVAL);
+    },
+
+    searchInputKeyDown: function() {
+      clearTimeout(this.typingTimer);
+    },
+
+    searchInputFinishedTyping: function() {
+      this.photos = [];
+      this.numerator = 0;
+      this.denominator = 0;
+      this.showNextPhoto();
+    }
   };
 
   // There is only one ThingPicker, to rule them all.
@@ -156,6 +177,14 @@ window.addEventListener('load', function() {
   const hate_it_button =  document.getElementById("hate_it_button");
   hate_it_button.addEventListener('click', function() {
     window.ThingPicker.markPhotoAs('hated');
+  });
+
+  const search_input = document.getElementById("search_input");
+  search_input.addEventListener('keyup', function() {
+    window.ThingPicker.searchInputKeyUp();
+  });
+  search_input.addEventListener('keydown', function() {
+    window.ThingPicker.searchInputKeyDown();
   });
 
   window.ThingPicker.showNextPhoto();

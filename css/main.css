@@ -15,7 +15,9 @@
  */
 
 .content {
-  margin: 0 auto;
+  margin-top: 2em;
+  margin-left: auto;
+  margin-right: auto;
   width: 800px;
   max-width: 100%;
 }
@@ -69,4 +71,11 @@ a {
   width: 100%;
   margin-top: 0.5em;
   text-align: center;
+}
+
+.search-input-container {
+  margin-top: 4em;
+  margin-left: auto;
+  margin-right: auto;
+  width: 35%;
 }
