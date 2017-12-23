@@ -52,9 +52,7 @@
       document.getElementById("pictureBox").classList.remove("hidden");
       document.getElementById("no-image-spinner").classList.add("hidden");
 
-      // TODO(smcgruer): Call getSizes API to determine allowable sizes, use the
-      // biggest.
-      const url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg";
+      const url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + photo.suffix + ".jpg";
       document.getElementById("pictureBox").src = url;
 
       this.numerator += 1;
@@ -76,6 +74,36 @@
       }, result_cb);
     },
 
+    addPhoto: function (photo) {
+      this.photos.push(photo);
+
+      const result_cb = function(err, result) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+
+        const sizes = new Set();
+        const sizes_arr = result.sizes.size;
+        for (const size of sizes_arr) {
+          sizes.add(size.label);
+        }
+
+        for (const saved_photo of this.photos) {
+          if (saved_photo.id === photo.id) {
+            if (sizes.has('Large'))
+              saved_photo.suffix = '_b';
+            else if (sizes.has('Medium 800'))
+              saved_photo.suffix = '_c';
+            else if (sizes.has('Medium 640'))
+              saved_photo.suffix = '_z';
+          }
+        }
+      }.bind(this);
+
+      this.flickr.photos.getSizes({ photo_id: photo.id }, result_cb);
+    },
+
     handlePhotosSearchResponse: function (err, result) {
       if (err) {
         console.log(err);
@@ -86,7 +114,8 @@
       const firebasePromises = Promise.map(result.photos.photo, photo => {
         return ref.child(photo.id).once('value').then(s => {
           if (s.val() === null) {
-            this.photos.push(photo);
+            photo.suffix = '';
+            this.addPhoto(photo);
             if (this.photos.length == 1) {
               this.showPhoto(photo);
             }
